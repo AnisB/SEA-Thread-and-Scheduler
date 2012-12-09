@@ -1,0 +1,266 @@
+
+
+														Cours de SEA -  04/10/2012
+														
+															Process & threads
+															
+															
+															
+															
+		
+		
+			I- Rappels:
+			 Un CPU est essentiellement une bande de registres dont PC par exemple, a coté on a un ensemble de portes logiques qui nous permettent de faire un fetch decode, execute.
+			 Ce CPU interagit avec une mémoire qui contient des données,
+			 
+			 
+			 							----------
+			 |------------------|		|Data 0	 |
+			 |CPU		Fetch	|		|Data 1	 |
+			 |R0		Decode	|		|Inst1	 |
+			 |R1		Execute	|<---->	|Inst2	 |
+			 |..				|		|..		 |
+			 |PC				|		|Inst243 |
+			 |R31				|		|--------|
+			 |------------------|				
+			 
+			 
+			 
+			 Execution d'un programme:
+			 
+				loop {
+					Fetch inst@ PC
+					Decode
+					Execute
+					PC = nextInst(PC)
+					} 
+					
+			 	C'est une boucle ou l'on récupère l'adresse stockée dans pc , on la décode on execute, et on recommence
+			 	
+			 	2/Concourence
+			 	
+			 		Problème de base de la concurrence:
+			 			-> Gérer les ressources
+			 					HW : 1 seul CPU, 1 seul meme
+			 					API : Système de fichiers
+			 					
+			 			C'est l'OS qui ordonne tout ça et décide qui s'execute quand !
+			 			
+			 			IN a donc introduit une Notion de "machine virtuelle" (! != JVM )
+			 			Donner l'illusion d'avoir plusieurs ensembles de ressources
+			 			
+			 			
+			 			Prog1 				Prog2			Prog3
+			 		Virtual CPU			Virtual CPU		Virtual CPU
+			 			A					A				A
+			 			|					|				|
+			 			|					|				|
+			 		|-------------------------------------------------|
+			 		|				Mémoire partagée				  |
+			 		|-------------------------------------------------|				
+			 						
+			 						
+								1 seul CPU réel !!!!
+								
+								
+								
+		 1 -Comment passer d'un CPU à l'autre
+		 2- Quand passer d'1 processus à l'autre
+		 				==>> Ordonanceur <=> Scheduler
+		 				
+		 				
+		 							===>	CONTEXT SWITCH
+		 				
+		 				
+		 				
+		 				
+		 				
+		 II - Process : 
+		 
+		 	1- Espace d'adressage:
+		 	 	= l'ensemble des adresses accessibles pou un 1 prog et donc pour un processus
+		 	 	
+		 	max -----------------
+		 	 	|	Stack/pile	|---> paramètres des fonction
+		 	 	|				|
+		 	 	|				|
+		 	 	|				|
+		 	 	|				|
+		 	 	|				|
+		 	 	|				|
+		 	 	|				|
+		 	 	|---------------|
+		 	 	|	Heap/tas	| -> données allouées par malloc
+		 	 	|---------------|
+		 	 	|	Data		| --> var globales
+		 	 	|---------------|
+		 	 	|	text/code	| - instructions
+		 	 	|				|
+		 	 	-----------------
+		 	 	
+		 	 	
+		 	 	
+		 	 	
+		 	 	Rappel :  sur le msp430, (4IF-AO) il n'y avait qu'un seuls espace
+		 	 	
+		 	 2- Processus lourds (UNIX)
+		 	 
+		 	 	2 parties :
+		 	 		- 1 prog sequentiel
+		 	 			+ Etat du CPU
+		 	 				(PC, SP,.. (d'autres registres))
+		 	 				
+		 	 		- Ensemble de ressources "protégées"
+		 	 			- espace d'@
+		 	 			- etat des I/O, fichiers 
+		 	 			
+		 	 			
+		 	 			
+		 	 		
+		 	 			
+		 	 			|-------|			
+			 			|data1  |
+			 			|-------|
+			 			|code2	|						|--------|
+			 			|-------|						| code	 |
+			 			|		|		table			| data	 |
+			 			|-------|----->	  de	<-------| heap	 |
+			 			|		|		traduction		| stack	 |
+			 			|		|						|"shared"|
+			 			|-------|						|--------|
+			 			|		|					process1 espace d'adressage
+			 			|-------|
+			 			|		|
+			 			|-------|
+			 			|		|
+			 			|-------|
+			 			RAM, espace d'adressage physique
+			 			
+			 			La table d'adressage relie les data et les code à leurs processus respectifs
+			 			
+			 			
+			 			Etat d'1 processus
+			 			PCB : processus control block
+			 			
+			 			
+								-----------------
+						 	 	|process state	|
+						 	 	|---------------|
+						 	 	|process num	|
+						 	 	|---------------|
+						 	 	|PC/SP			|
+						 	 	|---------------|
+						 	 	|registres		|
+						 	 	|---------------|
+						 	 	|open files		|
+						 	 	|---------------|
+						 	 	|	…			| 
+						 	 	|---------------|
+						 	 	
+						 	 	
+						 	
+						 	
+						 	
+			4 - Changement de contexte
+				Quand on doit passer P1 de runing à {ready,waiting ,terminated}
+				et passer P2 de ready à runing il faut effectuer 1 changementde contexte
+				
+									|--------|
+									|		 |	
+									|	PCB1 |<-------------|
+									|		 |			|---|---|
+									|--------|			|		| 
+														|		|
+														|		|
+														| pile	| 
+														| heap	|
+														|-------|
+															A
+															|
+									|--------|				|
+									|		 |				|
+									|	PCB2 |--------------|
+									|		 |			
+									|--------|
+									
+				
+				
+				
+				
+				
+				2 critères d'implémentation:
+					- Fréquence 10 - 100 ms
+					- Durée 0.1 - 1ms
+					
+					
+					
+	III - Threads
+	
+		1/ Definitions
+			Thread : 1 Flot d'execution séquentiel à l'intérieur d'1 process
+				- tjrs 1 seul espace d'adressage / process
+				- pas de protection  entre threads
+				
+				
+				
+		Séparer les 2 notions de thread et process permet détudier séparement 
+				- La concurence (Theads)
+				- La protection (process)
+				
+		2 - Thread != process
+		
+				Image 
+		3 -  Etat d'1 thread
+			@ Etat partagé par tous mes threads du process
+			
+			Rappel : 1 process = 1 exp
+			contenu de la mémoire (tas, variables globales)
+			Etat des I/O 
+			Task control block
+					TCB
+				
+		4 - Empreinte mémoire pour 2 threads
+		
+		main() 
+		{
+			pthread_create(p1,..)
+			pthread_create(p1,..)
+		}
+		
+		!! On a toujours
+			2 ensembles de red sauvegardés
+			2 piles
+	
+	
+				-----------------
+		 	 	|	stack 1		|
+		 	 	|---------------|
+		 	 	|				|
+		 	 	|---------------|
+		 	 	| 	stack2		|
+		 	 	|---------------|
+		 	 	|				|
+		 	 	|---------------|
+		 	 	|	heap		|
+		 	 	|---------------|
+		 	 	|	global		| 
+		 	 	|---------------|
+				|	code		|
+				|---------------|
+				
+				Comment les piles?
+				Quelle taille?
+				Que faire si le thread casse tout?
+				
+				
+				
+				
+				
+		5- TCB
+		 	* CPU state(reg SP)
+		 	* Scheduler info
+		 		state priorité
+		 	* Accounting info
+		 		(combien de CPU j'ai utilisé jusque là)	
+		 		
+		 	* Pointeur vers le PCB englobant

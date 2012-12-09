@@ -1,0 +1,238 @@
+1 -  Rappels
+	Execution des instructions
+		Fetch(Demande instruction)
+		Decode(Examination de l'instruction)
+		Exectuer l'instruction (ADD, Minus, Divide)
+			Pour chacune des intruction il y a un cycle particulier ensuite on recommence.
+			
+	
+	IR<-- mem(PC) 
+	PC : Pour intel, son nom est EIP(Entented instruction pointer), contient l'adresse de la prochaine instruction a executer
+	
+	Decodage:
+	PC <- PC +1
+	switch case (IR), en fonction de l'instruction que contient IR, on vas a un endroit diffenrent.
+	
+	
+	-Multitache, executer  plusieures taches simultanement, par exemple sur un serveur ou des clients executent des programmes a distance on doit pouvoir gérer tout en meme temps,
+	
+	Comme sur le mono processeur la simultanéité n'existe pas vraiement, on decoute le temps de la manière suivante.
+	|----|--------|----|--|..
+	Pa	 Pb		  Pc   Pb  
+	On ne change pas la manière de programmer, on donne au programmeur l'illusion qu'il a un processeur par programme.
+	
+	Deux choses sont necessaires.
+		
+		- Trouver un bon algo de partage de temps.
+		- Protection (mémoire, temps, materiel, etc.)
+		
+		
+	On isole chacun des programme dans un espace d'adressage
+	
+	- Espace d'adressage 
+	
+	-----------------
+Pa	|				|
+	-----------------
+	
+	----------------------------
+Pb	|Code|Data|Heap..| .. Stack|
+	----------------------------
+
+	-----------------
+Mem	|Pa	|..|Pb|..	|
+	-----------------
+	
+	Les differents espaces d'adressages sont isolés les uns des autres.
+	Code = Instructions
+	Data = Variables globales, statiques 
+	Heap: le tas, sa taille varie, reserve de mémoire pour l'allocation
+	Stack: La pile 
+	
+	
+Rappel : La pile
+
+A(int x)
+{
+	if(x<2)
+	{
+		B();
+		printf(x);
+	}
+}
+
+B()
+{
+	C();
+}
+
+C()
+{
+	A(2);
+}
+
+int main()
+{
+	A(1);
+}
+
+
+
+La Pile :
+
+Etat 1:
+					|---|
+				    | 3 | PC
+					|---|
+
+|-----------|
+|			|
+|			|
+|			|
+|			|
+|-----------|<----------|---|
+|A-   x =1	|			| x | SP
+|    ret= 13|			|---|
+|-----------|
+
+
+
+
+
+Etat 2:
+					|---|
+				    | 8 | PC
+					|---|
+
+|-----------|
+|			|
+|			|
+|			|
+|			|
+|-----------|<----------|---|
+|B-  		|			| x | SP
+|    ret= 4 |			|---|
+|-----------|
+|A=  x=1	|
+|	ret = 13|	
+|-----------|
+
+
+
+Etat 3:
+					|---|
+				    | 9 | PC
+					|---|
+
+|-----------|
+|			|
+|			|
+|			|
+|			|
+|-----------|<----------|---|
+|C-  		|			| x | SP
+|    ret= 8 |			|---|
+|-----------|
+|B = 		|
+|	ret = 4	|
+|-----------|
+|A=  x=1	|
+|	ret = 13|	
+|-----------|
+
+
+Etc.
+
+Généralement on alloue Une stack plus grande que necessaire, en éspérant que ça ne crash pas.
+	Deux resultats peuvent arriver en cas d'atteinte de la limite.
+	Trop peu de place, rien de prévu, BOUM
+	On s'est accordé des mecanismes systèmes pour remédier à cela.
+	
+	
+
+- Programme != Programme
+	- programme en cours d'exec
+	- espace d'a@
+	- contenu de la mémoire 
+	- Etat CPU
+	- Fichiers ouverts
+	
+	
+- Changement de contexte 
+
+
+
+Pa	|
+	|
+	v yeild()	
+	--------------->| Sauvegarde de contexte
+	A				| Elir un nouveau Pb
+	|				| Charger Pb
+	v				v
+					--------------------------->|
+											Pb	|
+												|
+					<---------------------------|
+	A				|
+	|				|
+	v				v
+	<----------------				
+	
+	
+	
+L"os a un PCB pour chaque process	
+	PCB
+|-----------|
+|	PID		|
+|-----------|
+|	state	|
+|espace d'@ |
+|-----------|
+| Registres |
+|-----------|			
+| Fichier   |			
+|-----------|
+
+Les processus sont stockés dans une liste chainnée ("Ready list")
+						Running		Terminated
+-------------  ----->	|------| --------------->|------| 
+| Ready list| 		 	|  CPU |				 |Zombie|
+-------------  <-----	|------|				 |------|
+		 A				|
+		 |				|
+		 |				| IO
+		 |				| Request
+IO		 |				|
+Request	 |				v
+Completed|				|---------------|
+		 |--------------|	OI/waiting	|
+						|---------------|
+						
+						
+Thread
+	But : Multiprogrammation Protection
+	Processus environement virtuel et isolé
+			Coute très cher!!!		
+			Multiprogrammation dans appli
+			
+			
+Thread offre seulement la multiprogrammation, dédoublement seulement du CPU
+
+
+|-----------------------------------------------------------|
+|	Code, adress, heap, stack1, stack2, blablabla			|
+|															|
+|-----------------------------------------------------------|					
+
+
+		TCB
+		|-------------------|
+		| PID				|
+		|-------------------|
+		| State				|
+		|-------------------|
+		|Organisation		|
+		|-------------------|
+		
+		
+		
